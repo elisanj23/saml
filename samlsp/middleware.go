@@ -184,21 +184,33 @@ func (m *Middleware) HandleStartAuthFlow(w http.ResponseWriter, r *http.Request)
 // CreateSessionFromAssertion is invoked by ServeHTTP when we have a new, valid SAML assertion.
 func (m *Middleware) CreateSessionFromAssertion(w http.ResponseWriter, r *http.Request, assertion *saml.Assertion, redirectURI string) {
 	if trackedRequestIndex := r.Form.Get("RelayState"); trackedRequestIndex != "" {
+		overridden := redirectURI != ""
+	if trackedRequestIndex := r.Form.Get("RelayState"); trackedRequestIndex != "" && !overridden {
 		trackedRequest, err := m.RequestTracker.GetTrackedRequest(r, trackedRequestIndex)
 		if err != nil {
-			m.OnError(w, r, err)
-			return
-		}
-		m.RequestTracker.StopTrackingRequest(w, r, trackedRequestIndex)
+			if err == http.ErrNoCookie && m.ServiceProvider.AllowIDPInitiated {
+				fmt.Println(r.Form.Get("RelayState"), "FORM")
+				if uri := r.Form.Get("RelayState"); uri != "" {
+					redirectURI = uri
+				}
+			} else {
+				m.OnError(w, r, err)
+				return
+			}
+		} else {
+			m.RequestTracker.StopTrackingRequest(w, r, trackedRequestIndex)
 
-		redirectURI = trackedRequest.URI
+			redirectURI = trackedRequest.URI
+		}
 	}
+}
 
 	if err := m.Session.CreateSession(w, r, assertion); err != nil {
 		m.OnError(w, r, err)
 		return
 	}
 
+	fmt.Println(redirectURI, "REDIRECT URI")
 	http.Redirect(w, r, redirectURI, http.StatusFound)
 }
 
