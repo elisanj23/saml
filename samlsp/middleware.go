@@ -209,7 +209,7 @@ func (m *Middleware) CreateSessionFromAssertion(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	fmt.Println(redirectURI, "REDIRECT URI")
+	
 	http.Redirect(w, r, redirectURI, http.StatusFound)
 }
 
