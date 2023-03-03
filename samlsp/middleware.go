@@ -189,7 +189,6 @@ func (m *Middleware) CreateSessionFromAssertion(w http.ResponseWriter, r *http.R
 		trackedRequest, err := m.RequestTracker.GetTrackedRequest(r, trackedRequestIndex)
 		if err != nil {
 			if err == http.ErrNoCookie && m.ServiceProvider.AllowIDPInitiated {
-				fmt.Println(r.Form.Get("RelayState"), "FORM")
 				if uri := r.Form.Get("RelayState"); uri != "" {
 					redirectURI = uri
 				}
