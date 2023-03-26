@@ -1,4 +1,4 @@
-module github.com/VertexTechComAu
+module github.com/VertexTechComAu/saml
 
 go 1.16
 
