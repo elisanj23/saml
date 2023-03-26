@@ -1,4 +1,4 @@
-module github.com/crewjam/saml
+module github.com/VertexTechComAu
 
 go 1.16
 
